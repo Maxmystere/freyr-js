@@ -82,6 +82,7 @@ function wrapCliInterface(binaryName, binaryPath) {
         else return cb(err);
       binaryPath = ensureBinExtIfWindows(isWin, binaryName);
     }
+    console.log([file, ...parseMeta(args)]);
 
     if (typeof file === 'string') spawn(binaryPath, [file, ...parseMeta(args)], {env: extendPathOnEnv(path)}).on('close', cb);
   };
@@ -848,27 +849,27 @@ async function init(queries, options) {
         artist: track.artists[0], // ©ART
         composer: track.composers, // ©wrt
         album: track.album, // ©alb
-        genre: (genre => (genre ? genre.concat(' ') : ''))((track.genres || [])[0]), // ©gen | gnre
+        genre: (genre => (genre ? genre.concat(' ') : ' '))((track.genres || [])[0]), // ©gen | gnre
         tracknum: `${track.track_number}/${track.total_tracks}`, // trkn
         disk: `${track.disc_number}/${track.disc_number}`, // disk
         year: new Date(track.release_date).toISOString().split('T')[0], // ©day
         compilation: track.compilation, // ©cpil
         gapless: options.gapless, // pgap
+        mbTrackId: track.musicBrainz.trackId,
+        mbArtistId: track.musicBrainz.artistId,
+        mbArtistId: track.musicBrainz.artistId,
+        mbReleaseId: track.musicBrainz.releaseId,
+        mbReleaseGroupId: track.musicBrainz.releaseGroupId,
+        mbBarcode: track.musicBrainz.barcode,
+        mbReleaseStatus: track.musicBrainz.releaseStatus,
+        mbReleaseCountry: track.musicBrainz.releaseCountry,
+        mbScript: track.musicBrainz.script,
+        mbMedia: track.musicBrainz.media,
         rDNSatom: [
           // ----
           [track.isrc, 'name=ISRC', 'domain=com.apple.iTunes'],
           [track.artists[0], 'name=ARTISTS', 'domain=com.apple.iTunes'],
           [track.label, 'name=LABEL', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.trackId, 'name="MusicBrainz Track Id"', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.artistId, 'name="MusicBrainz Artist Id"', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.artistId, 'name="MusicBrainz Album Artist Id"', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.releaseId, 'name="MusicBrainz Album Id"', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.releaseGroupId, 'name="MusicBrainz Release Group Id"', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.barcode, 'name=BARCODE', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.releaseStatus, 'name="MusicBrainz Album Status"', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.releaseCountry, 'name="MusicBrainz Album Release Country"', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.script, 'name=SCRIPT', 'domain=com.apple.iTunes'],
-          [track.musicBrainz.media, 'name=MEDIA', 'domain=com.apple.iTunes'],
           [`${meta.service[symbols.meta].DESC}: ${track.uri}`, 'name=SOURCE', 'domain=com.apple.iTunes'],
           [
             `${audioSource.service[symbols.meta].DESC}: ${audioSource.source.videoId}`,
@@ -881,7 +882,7 @@ async function init(queries, options) {
           : track.contentRating === true
           ? 'explicit'
           : 'Inoffensive',
-        stik: 'Normal', // stik
+        stik: 1, // stik
         // geID: 0, // geID: genreID. See `AtomicParsley --genre-list`
         // sfID: 0, // ~~~~: store front ID
         // cnID: 0, // cnID: catalog ID
